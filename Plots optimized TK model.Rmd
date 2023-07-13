@@ -176,4 +176,283 @@ legend(240,5, legend=c("3 uM","2 uM","1 uM"),
        col=c("turquoise","steelblue","slateblue"), lty=1:2, cex=1.2)
 ```
 
+```{r Plot plastic in control plate, echo=FALSE}
+#Prediction for 1 uM plastic
+plot(Ctr_TK_1_1uM[,"time"],Ctr_TK_1_1uM[,"Aplastic"],col="slateblue",ylim=c(0,3),xlim=c(0,340),
+     type="l",xlab="time(h)",ylab="nmoles",main="Plastic in control plate",cex.main=2.2,cex.lab=2,cex.axis=1.8)
+lines(Ctr_TK_2_1uM[,"time"],Ctr_TK_2_1uM[,"Aplastic"],col="slateblue")
+lines(Ctr_TK_3_1uM[,"time"],Ctr_TK_3_1uM[,"Aplastic"],col="slateblue")
+lines(Ctr_TK_4_1uM[,"time"],Ctr_TK_4_1uM[,"Aplastic"],col="slateblue")
+lines(Ctr_TK_5_1uM[,"time"],Ctr_TK_5_1uM[,"Aplastic"],col="slateblue")
+lines(Ctr_TK_6_1uM[,"time"],Ctr_TK_6_1uM[,"Aplastic"],col="slateblue")
+#experimental for plastic
+points(Eval_time,Eval_1uMC_plastic,col="slateblue4",pch = 16)
+points(Exp_time,Exp_1uMC_plastic,col="slateblue4",pch = 16)
+# Add error bars
+arrows(x0=Exp_time, y0=Exp_1uMC_plastic-STD_Exp_1uMC_plastic, x1=Exp_time, y1=Exp_1uMC_plastic+STD_Exp_1uMC_plastic, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+
+arrows(x0=Eval_time, y0=Eval_1uMC_plastic-STD_Eval_1uMC_plastic, x1=Eval_time, y1=Eval_1uMC_plastic+STD_Eval_1uMC_plastic, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+
+#predictions for plastic
+lines(Ctr_TK_1_2uM[,"time"],Ctr_TK_1_2uM[,"Aplastic"],col="steelblue1")
+lines(Ctr_TK_2_2uM[,"time"],Ctr_TK_2_2uM[,"Aplastic"],col="steelblue1")
+lines(Ctr_TK_3_2uM[,"time"],Ctr_TK_3_2uM[,"Aplastic"],col="steelblue1")
+lines(Ctr_TK_4_2uM[,"time"],Ctr_TK_4_2uM[,"Aplastic"],col="steelblue1")
+lines(Ctr_TK_5_2uM[,"time"],Ctr_TK_5_2uM[,"Aplastic"],col="steelblue1")
+lines(Ctr_TK_6_2uM[,"time"],Ctr_TK_6_2uM[,"Aplastic"],col="steelblue1")
+#experimental for plastic
+points(Eval_time,Eval_2uMC_plastic,col="steelblue4",pch = 16)
+points(Exp_time,Exp_2uMC_plastic,col="steelblue4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_2uMC_plastic-STD_Exp_2uMC_plastic, x1=Exp_time, y1=Exp_2uMC_plastic+STD_Exp_2uMC_plastic, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_2uMC_plastic-STD_Eval_2uMC_plastic, x1=Eval_time, y1=Eval_2uMC_plastic+STD_Eval_2uMC_plastic, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+
+
+#predictions for plastic 3 uM
+lines(Ctr_TK_3uM[,"time"],Ctr_TK_3uM[,"Aplastic"],col="turquoise")
+points(Exp_time,Exp_3uMC_plastic,col="turquoise4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_3uMC_plastic-STD_Exp_3uMC_plastic, x1=Exp_time, y1=Exp_3uMC_plastic+STD_Exp_3uMC_plastic, 
+       col="turquoise4",code=3, angle=90, length=0.05)
+
+
+legend(240,3, legend=c("3 uM","2 uM","1 uM"),
+       col=c("turquoise","steelblue","slateblue"), lty=1:2, cex=1.2)
+
+```
+
+## Plots for plates with cells
+```{r Simulations 1 uM in wells with cells, include=FALSE}
+
+#Simulate for 1 uM
+
+#First48 h, dosing 1 uM
+times<-seq(0,48,by=1) 
+state<-c("Amedium"=Dose_1uM,"Aplastic"=0,"Acells"=0)
+TK_1_1uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic ,Ka_cells=Ka_cells,Kd_cells=Kd_cells ))
+
+#Next 72 h, dosing 1 uM 
+times<-seq(48,120,by=1) 
+state<-c("Amedium"=Dose_1uM,"Aplastic"=as.numeric(TK_1_1uM[48,"Aplastic"]),"Acells"=as.numeric(TK_1_1uM[48,"Acells"]))
+TK_2_1uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 48 h, dosing 1 uM
+times<-seq(120,168,by=1) 
+state<-c("Amedium"=Dose_1uM,"Aplastic"=as.numeric(TK_2_1uM[(120-48),"Aplastic"]),"Acells"=as.numeric(TK_2_1uM[(120-48),"Acells"]))
+TK_3_1uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Withdrawn period
+#Next 48 h, complete medium change, no AMI
+times<-seq(168,216,by=1) 
+state<-c("Amedium"=0,"Aplastic"=as.numeric(TK_3_1uM[(168-120),"Aplastic"]),"Acells"=as.numeric(TK_3_1uM[(168-120),"Acells"]))
+TK_4_1uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 72 h, 25%medium changed, no AMI
+times<-seq(216,288,by=1) 
+state<-c("Amedium"=as.numeric(TK_4_1uM[(216-168),"Amedium"])*3/4,"Aplastic"=as.numeric(TK_4_1uM[(216-168),"Aplastic"]),"Acells"=as.numeric(TK_4_1uM[(216-168),"Acells"]))
+TK_5_1uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 48 h, 25%medium changed, no AMI
+times<-seq(288,336,by=1) 
+state<-c("Amedium"=as.numeric(TK_5_1uM[(288-216),"Amedium"])*3/4,"Aplastic"=as.numeric(TK_5_1uM[(288-216),"Aplastic"]),"Acells"=as.numeric(TK_5_1uM[(288-216),"Acells"]))
+TK_6_1uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+
+
+```
+
+```{r Simulations 2 uM in wells with cells, include=FALSE}
+
+#Simulation repeated 2 uM--------------------------------------------------------------------------------
+
+#First48 h, dosing 2 uM
+times<-seq(0,48,by=1) 
+state<-c("Amedium"=Dose_2uM,"Aplastic"=0,"Acells"=0)
+TK_1_2uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic ,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 72 h, dosing 2 uM 
+times<-seq(48,120,by=1) 
+state<-c("Amedium"=Dose_2uM,"Aplastic"=as.numeric(TK_1_2uM[48,"Aplastic"]),"Acells"=as.numeric(TK_1_2uM[(48),"Acells"]))
+TK_2_2uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 48 h, dosing 2 uM 
+times<-seq(120,168,by=1) 
+state<-c("Amedium"=Dose_2uM,"Aplastic"=as.numeric(TK_2_2uM[(120-48),"Aplastic"]),"Acells"=as.numeric(TK_2_2uM[(120-48),"Acells"]))
+TK_3_2uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Withdrawn period
+#Next 48 h, complete medium change, no AMI
+times<-seq(168,216,by=1) 
+state<-c("Amedium"=0,"Aplastic"=as.numeric(TK_3_2uM[(168-120),"Aplastic"]),"Acells"=as.numeric(TK_3_2uM[(168-120),"Acells"]))
+TK_4_2uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 72 h, 25%medium changed, no AMI
+times<-seq(216,288,by=1) 
+state<-c("Amedium"=as.numeric(TK_4_2uM[(216-168),"Amedium"])*3/4,"Aplastic"=as.numeric(TK_4_2uM[(216-168),"Aplastic"]),"Acells"=as.numeric(TK_4_2uM[(216-168),"Acells"]))
+TK_5_2uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+#Next 48 h, 25%medium changed, no AMI
+times<-seq(288,336,by=1) 
+state<-c("Amedium"=as.numeric(TK_5_2uM[(288-216),"Amedium"])*3/4,"Aplastic"=as.numeric(TK_5_2uM[(288-216),"Aplastic"]),"Acells"=as.numeric(TK_5_2uM[(288-216),"Acells"]))
+TK_6_2uM<-ode(y=state,times=times,func=TK_model_2,
+              parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+              
+```
+
+```{r Simulations 3 uM in wells with cells, include=FALSE}
+# Simulation acute 3 uM-------------------------------------------------------------------------------------
+TK_3uM<-ode(y=c("Amedium"=0.005144*1000 ,"Aplastic"=0,"Acells"=0),times=seq(0,48,by=1) ,func=TK_model_2,
+            parms=c(Ka_plastic=Ka_plastic,Kd_plastic=Kd_plastic ,Ka_cells=Ka_cells,Kd_cells=Kd_cells))
+
+```
+              
+
+## Plots of plastic in wells with cells
+
+```{r Plots of plastic in wells with cells, echo=FALSE}
+
+#Plots for plastic------------------------------------------------------------------
+#predictions for plastic 1uM
+plot(TK_1_1uM[,"time"],TK_1_1uM[,"Aplastic"],col="slateblue",xlim=c(0,340),ylim=c(0,3),
+     type="l",xlab="time(h)",ylab="nmoles",main="Plastic",cex.main=2.2,cex.lab=2,cex.axis=1.8)
+lines(TK_2_1uM[,"time"],TK_2_1uM[,"Aplastic"],col="slateblue")
+lines(TK_3_1uM[,"time"],TK_3_1uM[,"Aplastic"],col="slateblue")
+lines(TK_4_1uM[,"time"],TK_4_1uM[,"Aplastic"],col="slateblue")
+lines(TK_5_1uM[,"time"],TK_5_1uM[,"Aplastic"],col="slateblue")
+lines(TK_6_1uM[,"time"],TK_6_1uM[,"Aplastic"],col="slateblue")
+#experimental for plastic
+points(Eval_time,Eval_1uM_plastic,col="slateblue4",pch = 16)
+points(Exp_time,Exp_1uM_plastic,col="slateblue4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_1uM_plastic-STD_Exp_1uM_plastic, x1=Exp_time, y1=Exp_1uM_plastic+STD_Exp_1uM_plastic, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_1uM_plastic-STD_Eval_1uM_plastic, x1=Eval_time, y1=Eval_1uM_plastic+STD_Eval_1uM_plastic,   col="slateblue4",code=3, angle=90, length=0.05)
+
+
+#predictions for plastic 2 uM
+lines(TK_1_2uM[,"time"],TK_1_2uM[,"Aplastic"],col="steelblue1")
+lines(TK_2_2uM[,"time"],TK_2_2uM[,"Aplastic"],col="steelblue1")
+lines(TK_3_2uM[,"time"],TK_3_2uM[,"Aplastic"],col="steelblue1")
+lines(TK_4_2uM[,"time"],TK_4_2uM[,"Aplastic"],col="steelblue1")
+lines(TK_5_2uM[,"time"],TK_5_2uM[,"Aplastic"],col="steelblue1")
+lines(TK_6_2uM[,"time"],TK_6_2uM[,"Aplastic"],col="steelblue1")
+#experimental for plastic
+points(Eval_time,Eval_2uM_plastic,col="steelblue4",pch = 16)
+points(Exp_time,Exp_2uM_plastic,col="steelblue4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_2uM_plastic-STD_Exp_2uM_plastic, x1=Exp_time, y1=Exp_2uM_plastic+STD_Exp_2uM_plastic, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_2uM_plastic-STD_Eval_2uM_plastic, x1=Eval_time, y1=Eval_2uM_plastic+STD_Eval_2uM_plastic,   col="steelblue4",code=3, angle=90, length=0.05)
+
+#predictions for plastic 3 uM
+lines(TK_3uM[,"time"],TK_3uM[,"Aplastic"],col="turquoise")
+points(Exp_time,Exp_3uM_plastic,col="turquoise4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_3uM_plastic-STD_Exp_3uM_plastic, x1=Exp_time, y1=Exp_3uM_plastic+STD_Exp_3uM_plastic, 
+       col="turquoise4",code=3, angle=90, length=0.05)
+
+legend(180,3, legend=c("1 μM", "2 μM","3 μM"),
+       col=c("slateblue", "steelblue","turquoise"), lty=1:2, cex=2)
+
+```
+
+```{r Plots of medium in wells with cells, echo=FALSE}
+#Plots for medium-------------------------------------------------------------------------------
+
+#prediction for medium 1 uM
+plot(TK_1_1uM[,"time"],TK_1_1uM[,"Amedium"],col="slateblue",ylim=c(0,5),xlim=c(0,340),
+     type="l",xlab="time(h)",ylab="nmoles",main="Medium",cex.main=2.2,cex.lab=2,cex.axis=1.8)
+lines(TK_2_1uM[,"time"],TK_2_1uM[,"Amedium"],col="slateblue")
+lines(TK_3_1uM[,"time"],TK_3_1uM[,"Amedium"],col="slateblue")
+lines(TK_4_1uM[,"time"],TK_4_1uM[,"Amedium"],col="slateblue")
+lines(TK_5_1uM[,"time"],TK_5_1uM[,"Amedium"],col="slateblue")
+lines(TK_6_1uM[,"time"],TK_6_1uM[,"Amedium"],col="slateblue")
+#experimental for medium
+points(Eval_time[1],Eval_1uM_medium[1],col="slateblue4",pch = 16)
+points(Exp_time,Exp_1uM_medium,col="slateblue4",pch = 16)
+
+arrows(x0=Exp_time, y0=Exp_1uM_medium-STD_Exp_1uM_medium, x1=Exp_time, y1=Exp_1uM_medium+STD_Exp_1uM_medium, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_1uM_medium-STD_Eval_1uM_medium, x1=Eval_time, y1=Eval_1uM_medium+STD_Eval_1uM_medium, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+
+#prediction for medium 2 uM
+lines (TK_1_2uM[,"time"],TK_1_2uM[,"Amedium"],col="steelblue1")
+lines(TK_2_2uM[,"time"],TK_2_2uM[,"Amedium"],col="steelblue1")
+lines(TK_3_2uM[,"time"],TK_3_2uM[,"Amedium"],col="steelblue1")
+lines(TK_4_2uM[,"time"],TK_4_2uM[,"Amedium"],col="steelblue1")
+lines(TK_5_2uM[,"time"],TK_5_2uM[,"Amedium"],col="steelblue1")
+lines(TK_6_2uM[,"time"],TK_6_2uM[,"Amedium"],col="steelblue1")
+#experimental for medium
+points(Eval_time[1],Eval_2uM_medium[1],col="steelblue4",pch = 16)
+points(Exp_time,Exp_2uM_medium,col="steelblue4",pch = 16)
+arrows(x0=Exp_time[1], y0=Exp_2uM_medium[1]-STD_Exp_2uM_medium[1], x1=Exp_time[1], y1=Exp_2uM_medium[1]+STD_Exp_2uM_medium[1], 
+       col="steelblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_2uM_medium-STD_Eval_2uM_medium, x1=Eval_time, y1=Eval_2uM_medium+STD_Eval_2uM_medium, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+
+#predictions for medium 3 uM
+lines(TK_3uM[,"time"],TK_3uM[,"Amedium"],col="turquoise")
+points(Exp_time,Exp_3uM_medium,col="turquoise4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_3uM_medium-STD_Exp_3uM_medium, x1=Exp_time, y1=Exp_3uM_medium+STD_Exp_3uM_medium, 
+       col="turquoise4",code=3, angle=90, length=0.05)
+
+legend(180,5, legend=c("1 μM", "2 μM","3 μM"),
+       col=c("slateblue", "steelblue","turquoise"), lty=1:2, cex=2)
+```
+
+```{r Plots of cells, echo=FALSE}
+
+#prediction for cells
+plot(TK_1_1uM[,"time"],TK_1_1uM[,"Acells"],col="slateblue",ylim=c(0,3),xlim=c(0,340),
+     type="l",xlab="time(h)",ylab="nmoles",main="Cells",cex.main=2.2,cex.lab=2,cex.axis=1.8)
+lines(TK_2_1uM[,"time"],TK_2_1uM[,"Acells"],col="slateblue")
+lines(TK_3_1uM[,"time"],TK_3_1uM[,"Acells"],col="slateblue")
+lines(TK_4_1uM[,"time"],TK_4_1uM[,"Acells"],col="slateblue")
+lines(TK_5_1uM[,"time"],TK_5_1uM[,"Acells"],col="slateblue")
+lines(TK_6_1uM[,"time"],TK_6_1uM[,"Acells"],col="slateblue")
+points(Eval_time,Eval_1uM_cells,col="slateblue4",pch=16)
+points(Exp_time,Exp_1uM_cells,col="slateblue4",pch=16)
+
+arrows(x0=Exp_time, y0=Exp_1uM_cells-STD_Exp_1uM_cells, x1=Exp_time, y1=Exp_1uM_cells+STD_Exp_1uM_cells, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_1uM_cells-STD_Eval_1uM_cells, x1=Eval_time, y1=Eval_1uM_cells+STD_Eval_1uM_cells, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+
+#prediction for cells 2 uM
+lines(TK_1_2uM[,"time"],TK_1_2uM[,"Acells"],col="steelblue1")
+lines(TK_2_2uM[,"time"],TK_2_2uM[,"Acells"],col="steelblue1")
+lines(TK_3_2uM[,"time"],TK_3_2uM[,"Acells"],col="steelblue1")
+lines(TK_4_2uM[,"time"],TK_4_2uM[,"Acells"],col="steelblue1")
+lines(TK_5_2uM[,"time"],TK_5_2uM[,"Acells"],col="steelblue1")
+lines(TK_6_2uM[,"time"],TK_6_2uM[,"Acells"],col="steelblue1")
+points(Eval_time,Eval_2uM_cells,col="steelblue4",pch = 16)
+points(Exp_time,Exp_2uM_cells,col="steelblue4",pch = 16)
+
+arrows(x0=Exp_time, y0=Exp_2uM_cells-STD_Exp_2uM_cells, x1=Exp_time, y1=Exp_2uM_cells+STD_Exp_2uM_cells, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_2uM_cells-STD_Eval_2uM_cells, x1=Eval_time, y1=Eval_2uM_cells+STD_Eval_2uM_cells, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+
+
+#predictions for medium 3 uM
+lines(TK_3uM[,"time"],TK_3uM[,"Acells"],col="turquoise")
+points(Exp_time,Exp_3uM_cells,col="turquoise4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_3uM_cells-STD_Exp_3uM_cells, x1=Exp_time, y1=Exp_3uM_cells+STD_Exp_3uM_cells, 
+       col="turquoise4",code=3, angle=90, length=0.05)
+
+legend(180,3, legend=c("1 μM", "2 μM","3 μM"),
+       col=c("slateblue", "steelblue","turquoise"), lty=1:2, cex=1)
+
+```
 
