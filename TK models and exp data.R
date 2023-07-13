@@ -92,7 +92,6 @@ Eval_time<-c(168,336)
 ###
 
 #Compartmental model for control plate
-#Compartmental model for control plate
 TK_model_1<-function(t,state,parameters){
   with(as.list(c(state,parameters)),{
     

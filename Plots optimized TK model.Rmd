@@ -1,0 +1,179 @@
+---
+title: "Plotting TK model"
+author: "Susana Proenca"
+date: '2023-07-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Libraries needed
+
+```{r Libraries, include=FALSE}
+
+library(deSolve)
+
+```
+
+## Input the optimized rates
+
+```{r Optimized rates, echo=TRUE}
+
+Ka_plastic= 0.412
+Kd_plastic= 0.289
+Kdeg=  0.005
+Ka_cells=  0.406
+Kd_cells=  0.314
+
+```
+
+#Input the model and expeirmental data
+
+```{r Get TK model and exp data, echo=TRUE}
+
+source("TK models and exp data.R")
+
+```
+
+## Make plots for control plate
+First make simulations and then we can plot the results
+
+```{r Simulations for repeated 1 uM, include=FALSE}
+
+#First48 h, dosing 1 uM
+times<-seq(0,48,by=1/60)
+state<-c("Amedium"=Dose_1uM,"Aplastic"=0,"Adeg"=0)
+Ctr_TK_1_1uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 72 h, dosing 1 uM
+times<-seq(48,120,by=1/60)
+state<-c("Amedium"=Dose_1uM,"Aplastic"=as.numeric(Ctr_TK_1_1uM[48*60+1,"Aplastic"]),"Adeg"=0)
+Ctr_TK_2_1uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 48 h, dosing 1 uM
+times<-seq(120,168,by=1/60)
+state<-c("Amedium"=Dose_1uM,"Aplastic"=as.numeric(Ctr_TK_2_1uM[((120-48)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_3_1uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Withdrawn period
+#Next 48 h, complete medium change, no AMI
+times<-seq(168,216,by=1/60)
+state<-c("Amedium"=0,"Aplastic"=as.numeric(Ctr_TK_3_1uM[((168-120)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_4_1uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 72 h, 25%medium changed, no AMI
+times<-seq(216,288,by=1/60)
+state<-c("Amedium"=as.numeric(Ctr_TK_4_1uM[((216-168)*60+1),"Amedium"])*3/4,"Aplastic"=as.numeric(Ctr_TK_4_1uM[((216-168)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_5_1uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 48 h, 25%medium changed, no AMI
+times<-seq(288,336,by=1/60)
+state<-c("Amedium"=as.numeric(Ctr_TK_5_1uM[((288-216)*60+1),"Amedium"])*3/4,"Aplastic"=as.numeric(Ctr_TK_5_1uM[((288-216)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_6_1uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+
+```
+
+```{r Simulations for repeated 2 uM, include=FALSE}
+
+
+#First48 h, dosing 2 uM
+times<-seq(0,48,by=1/60)
+state<-c("Amedium"=Dose_2uM,"Aplastic"=0,"Adeg"=0)
+Ctr_TK_1_2uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 72 h, dosing 2 uM
+times<-seq(48,120,by=1/60)
+state<-c("Amedium"=Dose_2uM,"Aplastic"=as.numeric(Ctr_TK_1_1uM[48*60+1,"Aplastic"]),"Adeg"=0)
+Ctr_TK_2_2uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 48 h, dosing 2 uM
+times<-seq(120,168,by=1/60)
+state<-c("Amedium"=Dose_2uM,"Aplastic"=as.numeric(Ctr_TK_2_1uM[((120-48)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_3_2uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Withdrawn period
+#Next 48 h, complete medium change, no AMI
+times<-seq(168,216,by=1/60)
+state<-c("Amedium"=0,"Aplastic"=as.numeric(Ctr_TK_3_1uM[((168-120)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_4_2uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 72 h, 25%medium changed, no AMI
+times<-seq(216,288,by=1/60)
+state<-c("Amedium"=as.numeric(Ctr_TK_4_1uM[((216-168)*60+1),"Amedium"])*3/4,"Aplastic"=as.numeric(Ctr_TK_4_1uM[((216-168)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_5_2uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+#Next 48 h, 25%medium changed, no AMI
+times<-seq(288,336,by=1/60)
+state<-c("Amedium"=as.numeric(Ctr_TK_5_1uM[((288-216)*60+1),"Amedium"])*3/4,"Aplastic"=as.numeric(Ctr_TK_5_1uM[((288-216)*60+1),"Aplastic"]),"Adeg"=0)
+Ctr_TK_6_2uM<-ode(y=state,times=times,func=TK_model_1,
+                  parms=c(Ka_plastic=Ka_plastic ,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+
+```
+
+
+```{r Simulations acute 3 uM, include=FALSE}
+
+Ctr_TK_3uM<-ode(y=c("Amedium"=Dose_3uM,"Aplastic"=0,"Adeg"=0),times=seq(0,48,by=1/60),func=TK_model_1,
+                parms=c(Ka_plastic=Ka_plastic,Kd_plastic=Kd_plastic,Kdeg=Kdeg))
+```
+
+
+```{r Plot medium in control plate, echo=FALSE}
+
+plot(Ctr_TK_1_1uM[,"time"],Ctr_TK_1_1uM[,"Amedium"],col="slateblue",ylim=c(0,5),xlim=c(0,340),
+     main="Medium in control plate",type="l",xlab="time(h)",ylab="nmoles",cex.main=2.2,cex.lab=2,cex.axis=1.8)
+lines(Ctr_TK_2_1uM[,"time"],Ctr_TK_2_1uM[,"Amedium"],col="slateblue")
+lines(Ctr_TK_3_1uM[,"time"],Ctr_TK_3_1uM[,"Amedium"],col="slateblue")
+lines(Ctr_TK_4_1uM[,"time"],Ctr_TK_4_1uM[,"Amedium"],col="slateblue")
+lines(Ctr_TK_5_1uM[,"time"],Ctr_TK_5_1uM[,"Amedium"],col="slateblue")
+lines(Ctr_TK_6_1uM[,"time"],Ctr_TK_6_1uM[,"Amedium"],col="slateblue")
+#experimental for medium
+points(Eval_time,Eval_1uMC_medium,col="slateblue4",pch = 16)
+points(Exp_time,Exp_1uMC_medium,col="slateblue4",pch = 16)
+
+# Add error bars
+arrows(x0=Exp_time, y0=Exp_1uMC_medium-STD_Exp_1uMC_medium, x1=Exp_time, y1=Exp_1uMC_medium+STD_Exp_1uMC_medium, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_1uMC_medium-STD_Eval_1uMC_medium, x1=Eval_time, y1=Eval_1uMC_medium+STD_Eval_1uMC_medium, 
+       col="slateblue4",code=3, angle=90, length=0.05)
+
+#prediction for medium
+lines(Ctr_TK_1_2uM[,"time"],Ctr_TK_1_2uM[,"Amedium"],col="steelblue1")
+lines(Ctr_TK_2_2uM[,"time"],Ctr_TK_2_2uM[,"Amedium"],col="steelblue1")
+lines(Ctr_TK_3_2uM[,"time"],Ctr_TK_3_2uM[,"Amedium"],col="steelblue1")
+lines(Ctr_TK_4_2uM[,"time"],Ctr_TK_4_2uM[,"Amedium"],col="steelblue1")
+lines(Ctr_TK_5_2uM[,"time"],Ctr_TK_5_2uM[,"Amedium"],col="steelblue1")
+lines(Ctr_TK_6_2uM[,"time"],Ctr_TK_6_2uM[,"Amedium"],col="steelblue1")
+#experimental for medium
+points(Eval_time,Eval_2uMC_medium,col="steelblue4",pch = 16)
+points(Exp_time,Exp_2uMC_medium,col="steelblue4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_2uMC_medium-STD_Exp_2uMC_medium, x1=Exp_time, y1=Exp_2uMC_medium+STD_Exp_2uMC_medium, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+arrows(x0=Eval_time, y0=Eval_2uMC_medium-STD_Eval_2uMC_medium, x1=Eval_time, y1=Eval_2uMC_medium+STD_Eval_2uMC_medium, 
+       col="steelblue4",code=3, angle=90, length=0.05)
+
+#predictions for medium 3 uM
+lines(Ctr_TK_3uM[,"time"],Ctr_TK_3uM[,"Amedium"],col="turquoise")
+points(Exp_time,Exp_3uMC_medium,col="turquoise4",pch = 16)
+arrows(x0=Exp_time, y0=Exp_3uMC_medium-STD_Exp_3uMC_medium, x1=Exp_time, y1=Exp_3uMC_medium+STD_Exp_3uMC_medium, 
+       col="turquoise4",code=3, angle=90, length=0.05)
+
+
+legend(240,5, legend=c("3 uM","2 uM","1 uM"),
+       col=c("turquoise","steelblue","slateblue"), lty=1:2, cex=1.2)
+```
+
+
